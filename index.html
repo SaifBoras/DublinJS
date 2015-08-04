@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head>
+
+<body>
+
+  <title>DublinJS Immersive Photosphere</title>
+  <meta name="description" content="Immersive Photosphere">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="./css/style.css" rel="stylesheet" type="text/css">
+  <script src="./js/jquery.min.js" type="text/javascript"></script>
+  <script src="./js/three.min.js"></script>
+  <script src="./js/DeviceOrientationControls.js"></script>
+  <script src="./js/StereoEffect.js"></script>
+  
+
+
+  <script>
+    $(document).ready(function () {
+        var displayMerrionSquarePhotosphere = function () {
+            $('#tour_page').hide();
+    
+            startPhotosphere('merrion_square');
+    
+            $('#photosphere_page').show();
+        };
+    
+    
+        var container, camera, scene, renderer, controls, merrionSquareMesh;
+        var effect;
+        var animate = function () {
+            window.requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            effect.render(scene, camera);
+        };
+        container = document.getElementById('container');
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1100);
+        controls = new THREE.DeviceOrientationControls(camera);
+        scene = new THREE.Scene();
+        var geometry = new THREE.SphereGeometry(500, 16, 8);
+    
+        var merrionSquareMaterial = new THREE.MeshBasicMaterial({
+            map: THREE.ImageUtils.loadTexture('./img/merrion_square_smaller.jpg')
+        });
+        merrionSquareMesh = new THREE.Mesh(geometry, merrionSquareMaterial);
+        merrionSquareMesh.visible = true;
+        scene.add(merrionSquareMesh);
+    
+    
+        geometry.applyMatrix(new THREE.Matrix4().makeScale(-1, 1, 1));
+        renderer = new THREE.WebGLRenderer();
+        effect = new THREE.StereoEffect(renderer);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        effect.setSize(window.innerWidth, window.innerHeight);
+        renderer.domElement.style.position = 'absolute';
+        renderer.domElement.style.top = 0;
+        renderer.domElement.style.left = 0;
+        container.appendChild(renderer.domElement);
+        window.addEventListener('resize', function () {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            effect.setSize(window.innerWidth, window.innerHeight);
+        }, false);
+        controls.connect();
+        animate();
+    
+        var stopAllAudio = function () {
+            var audioElements = document.getElementsByTagName('audio');
+            var audioElementList = Array.prototype.slice.call(audioElements);
+            audioElementList.forEach(function (audioElement) {
+                audioElement.pause();
+                audioElement.currentTime = 0;
+            });
+        };
+    
+        var startPhotosphere = function (photosphere) {
+    
+            stopAllAudio();
+            $('#' + photosphere + '_audio').trigger('play');
+    
+                
+        };
+    
+             
+        displayMerrionSquarePhotosphere();
+
+    });
+    
+  </script>
+
+
+
+  <!-- page_wrapper-->
+  <div id="photosphere_page" style="position: absolute; left: 0px; display: block;" class="hidden">
+    <audio id="merrion_square_audio" controls="merrionSquareControls" preload="auto">
+      <source src="./audio/merrion_square.ogg" type="audio/ogg">
+    </audio>
+    <div id="container"><canvas width="1864" height="1165" style="width: 1864px; height: 1165px; position: absolute; top: 0px; left: 0px;"></canvas></div>
+  </div>
+</body>
+
+</html>
